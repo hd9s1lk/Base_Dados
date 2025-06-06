@@ -1,0 +1,140 @@
+USE master
+GO
+
+CREATE DATABASE TRABALHO_P
+GO
+
+USE TRABALHO_P
+GO
+
+CREATE TABLE Funcionario(
+  ID                     INT         NOT NULL,
+  NOME                   VARCHAR(50) NOT NULL,
+  APELIDO                VARCHAR(50) NOT NULL,
+  TELEFONE               VARCHAR(50) NOT NULL,
+  ENDERECO_MORADA        VARCHAR(50) NOT NULL,
+  ENDERECO_LOCALIDADE    VARCHAR(50) NOT NULL,
+  ENDERECO_CODIGO_POSTAL VARCHAR(8)  NOT NULL,
+  CHECK (ENDERECO_CODIGO_POSTAL LIKE '[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]'),
+  CHECK (Telefone LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
+  PRIMARY KEY (ID)
+);
+
+CREATE TABLE Freguesia (
+  Codigo      INT   NOT NULL,
+  Area        FLOAT NOT NULL,
+  Populacao   INT NOT NULL,
+  PRIMARY KEY (Codigo)
+);
+
+CREATE TABLE Centro_Medico (
+  ID    INT         NOT NULL,
+  Nome  VARCHAR(50) NOT NULL,
+  PRIMARY KEY (ID)
+);
+
+CREATE TABLE Centro_Saude(
+  ID_CS         INT         NOT NULL,
+  Nome          VARCHAR(50) NOT NULL,
+  Enfermagem    VARCHAR(50) NOT NULL,
+  PRIMARY KEY (ID_CS),
+  FOREIGN KEY (ID_CS) REFERENCES Centro_Medico (ID)
+);
+
+CREATE TABLE Hospital (
+  ID_H            INT         NOT NULL,
+  Especialidade   VARCHAR(50) NOT NULL,
+  PRIMARY KEY (ID_H),
+  FOREIGN KEY (ID_H) REFERENCES Centro_Medico (ID)
+);
+
+CREATE TABLE Hospital_Especialidades (
+  Codigo_Especialidade   INT         NOT NULL,
+  Nome_Especialidade     VARCHAR(50) NOT NULL,
+  PRIMARY KEY (Codigo_Especialidade),
+  FOREIGN KEY (Codigo_Especialidade) REFERENCES Hospital (ID_H)
+);
+
+CREATE TABLE Cidade (
+  ID                      INT         NOT NULL,
+  NOME                    VARCHAR(50) NOT NULL,
+  AREA                    FLOAT       NOT NULL,
+  LOCALIZACAO_PAIS        VARCHAR(50) NOT NULL,
+  LOCALIZACAO_CONTINENTE  VARCHAR(50) NOT NULL,
+  PRIMARY KEY (ID)
+);
+
+CREATE TABLE Espaco_Publico (
+  ID                       INT         NOT NULL,
+  NOME                     VARCHAR(50) NOT NULL,
+  NOME_POPULAR             VARCHAR(50) NOT NULL,
+  ENDERECO_LOCALIDADE      VARCHAR(50) NOT NULL,
+  ENDERECO_MORADA          VARCHAR(50) NOT NULL,
+  ENDERECO_CODIGOPOSTAL    VARCHAR(50) NOT NULL,
+  CHECK (ENDERECO_CODIGOPOSTAL LIKE '[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]'),
+  PRIMARY KEY (ID)
+);
+
+CREATE TABLE Conter (
+  Tempo               VarChar(10) NOT NULL,
+  ID_CIDADE           INT      NOT NULL,
+  ID_ESPACO_PUBLICO   INT      NOT NULL,
+  PRIMARY KEY (Tempo),
+  FOREIGN KEY (ID_CIDADE) REFERENCES Cidade (ID),
+  FOREIGN KEY (ID_ESPACO_PUBLICO) REFERENCES Espaco_Publico (ID)
+);
+
+CREATE TABLE Construir (
+  Tempo               VarChar(10) NOT NULL,
+  PRECO               FLOAT    NOT NULL,
+  ID_CIDADE           INT      NOT NULL,
+  ID_CENTRO_MEDICO    INT      NOT NULL,
+  PRIMARY KEY (Tempo),
+  FOREIGN KEY (ID_CENTRO_MEDICO) REFERENCES Centro_Medico (ID),
+  FOREIGN KEY (ID_CIDADE) REFERENCES Cidade (ID)
+);
+
+CREATE TABLE Manutencao (
+  TEMPO                 VARCHAR(10) NOT NULL,
+  TEMPO_FINAL           VARCHAR(10) NULL,
+  ID_FUNCIONARIO        INT  NOT NULL,
+  Id_ESPACO_PUBLICO     INT  NOT NULL,
+  PRIMARY KEY (TEMPO),
+  FOREIGN KEY (ID_FUNCIONARIO) REFERENCES Funcionario (ID),
+  FOREIGN KEY (Id_ESPACO_PUBLICO) REFERENCES Espaco_Publico (ID)
+);
+
+CREATE TABLE Possuir (
+  TEMPO           Varchar(10) Not NULL,
+  TEMPO_FINAL     VarChar(10) Null,
+  VALORM2         FLOAT  NOT NULL,
+  ID_CIDADE       INT  NOT NULL,
+  ID_FREGUESIA    INT  NOT NULL,
+  PRIMARY KEY (TEMPO),
+  FOREIGN KEY (ID_FREGUESIA) REFERENCES Freguesia (Codigo),
+  FOREIGN KEY (ID_CIDADE) REFERENCES Cidade (ID)
+);
+
+CREATE TABLE Contratar_CS (
+  TEMPO             DATETIME NOT NULL DEFAULT GETDATE(),
+  SALARIO           FLOAT    NOT NULL,
+  ID_CS             INT      NOT NULL,
+  ID_FREGUESIA      INT      NOT NULL,
+  ID_FUNCIONARIO    INT      NOT NULL,
+  PRIMARY KEY (TEMPO),
+  FOREIGN KEY (ID_CS) REFERENCES Centro_Saude (ID_CS),
+  FOREIGN KEY (ID_FREGUESIA) REFERENCES Freguesia (Codigo),
+  FOREIGN KEY (ID_FUNCIONARIO) REFERENCES Funcionario (ID)
+);
+
+CREATE TABLE Contratar_H (
+  TEMPO           DATETIME NOT NULL,
+  SALARIO         FLOAT    NOT NULL,
+  ID_FUNCIONARIO  INT      NOT NULL,
+  ID_HOSPITAL     INT      NOT NULL,
+  ID_CIDADE       INT      NOT NULL,
+  PRIMARY KEY (TEMPO),
+  FOREIGN KEY (ID_HOSPITAL) REFERENCES Hospital (ID_H),
+  FOREIGN KEY (ID_FUNCIONARIO) REFERENCES Funcionario (ID),
+  FOREIGN KEY (ID_CIDADE) REFERENCES Cidade (ID)
+);
